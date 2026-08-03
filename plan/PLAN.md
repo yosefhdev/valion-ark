@@ -261,6 +261,14 @@ olvida `_status: 'published'`, los borradores se publican solos. Por eso el filt
 contra `localhost:3000` y las previews al compartir salen rotas. Se resuelve con
 `NEXT_PUBLIC_SERVER_URL`, que en Railway debe apuntar al dominio real con `https`.
 
+**Imágenes:** la portada se muestra con `next/image` usando el tamaño `card` en el
+artículo y `thumbnail` en el listado — nunca la original, que puede pesar 1 MB. Funciona
+gracias a `images.localPatterns` en `next.config.ts`, que ya venía apuntando a
+`/api/media/file/**`. Las imágenes *dentro* del rich text las resuelve el converter por
+defecto de Payload, que genera un `<picture>` con un `<source>` por tamaño, pero con
+`<img>` nativo en vez de `next/image`: eso se cambia en la Fase 5. Requiere `depth >= 1`
+en la consulta, o el nodo llega como id y el converter lo ignora en silencio.
+
 **Pendiente de verificar en vivo:** el hook de `revalidatePath` está implementado y
 typecheckeado, pero no se ha comprobado publicando desde el panel y viendo la página
 actualizarse sin esperar la hora del ISR.

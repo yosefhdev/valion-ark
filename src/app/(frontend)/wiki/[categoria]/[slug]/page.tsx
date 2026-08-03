@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { RichText } from '@payloadcms/richtext-lexical/react'
@@ -73,6 +74,11 @@ export default async function PostPage({ params }: { params: Promise<Params> }) 
   // El artículo existe, pero colgado de otra categoría: esta URL no es la suya.
   if (catSlug !== categoria) notFound()
 
+  const cover = post.coverImage as Media | number | null
+  // Se sirve el tamaño `card`, no la imagen full: la original puede pesar 1 MB.
+  const coverSize =
+    cover && typeof cover !== 'number' ? (cover.sizes?.card ?? cover) : null
+
   return (
     <main className="mx-auto max-w-[1120px] px-6 py-24">
       <p className="font-hud text-[11px] uppercase tracking-[0.22em] text-bone-dim">
@@ -88,6 +94,17 @@ export default async function PostPage({ params }: { params: Promise<Params> }) 
 
       <h1 className="mt-4 font-display text-5xl font-extrabold uppercase">{post.title}</h1>
       {post.excerpt && <p className="mt-3 text-bone-dim">{post.excerpt}</p>}
+
+      {coverSize?.url && coverSize.width && coverSize.height && (
+        <Image
+          src={coverSize.url}
+          alt={typeof cover !== 'number' ? (cover?.alt ?? '') : ''}
+          width={coverSize.width}
+          height={coverSize.height}
+          className="mt-10 w-full border border-moss"
+          priority
+        />
+      )}
 
       <div className="mt-10 flex flex-col gap-12 lg:flex-row">
         <article className="min-w-0 flex-1">

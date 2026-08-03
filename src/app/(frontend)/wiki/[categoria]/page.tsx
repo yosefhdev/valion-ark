@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPayloadClient, onlyPublished } from '@/lib/payload'
+import type { Media } from '@/payload-types'
 
 export const revalidate = 3600
 
@@ -55,7 +57,7 @@ export default async function CategoryPage({ params }: { params: Promise<Params>
     where: { and: [{ category: { equals: cat.id } }, onlyPublished] },
     sort: '-updatedAt',
     limit: 100,
-    depth: 0,
+    depth: 1, // para traer la portada poblada, no solo su id
   })
 
   return (
@@ -74,14 +76,34 @@ export default async function CategoryPage({ params }: { params: Promise<Params>
         <p className="mt-10 text-bone-dim">Todavía no hay artículos publicados aquí.</p>
       ) : (
         <ul className="mt-10 space-y-4">
-          {posts.map((post) => (
-            <li key={post.id}>
-              <Link href={`/wiki/${cat.slug}/${post.slug}`} className="panel block p-6">
-                <h2 className="font-display text-2xl font-semibold uppercase">{post.title}</h2>
-                {post.excerpt && <p className="mt-2 text-bone-dim">{post.excerpt}</p>}
-              </Link>
-            </li>
-          ))}
+          {posts.map((post) => {
+            const cover = post.coverImage as Media | number | null
+            // El listado usa `thumbnail`, no la imagen completa.
+            const thumb =
+              cover && typeof cover !== 'number' ? (cover.sizes?.thumbnail ?? null) : null
+
+            return (
+              <li key={post.id}>
+                <Link href={`/wiki/${cat.slug}/${post.slug}`} className="panel flex gap-5 p-6">
+                  {thumb?.url && thumb.width && thumb.height && (
+                    <Image
+                      src={thumb.url}
+                      alt={typeof cover !== 'number' ? (cover?.alt ?? '') : ''}
+                      width={thumb.width}
+                      height={thumb.height}
+                      className="hidden h-24 w-32 shrink-0 object-cover sm:block"
+                    />
+                  )}
+                  <div className="min-w-0">
+                    <h2 className="font-display text-2xl font-semibold uppercase">
+                      {post.title}
+                    </h2>
+                    {post.excerpt && <p className="mt-2 text-bone-dim">{post.excerpt}</p>}
+                  </div>
+                </Link>
+              </li>
+            )
+          })}
         </ul>
       )}
     </main>
