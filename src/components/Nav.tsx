@@ -1,5 +1,7 @@
 import Link from 'next/link'
+import { SearchDialog } from '@/components/SearchDialog'
 import { getPayloadClient } from '@/lib/payload'
+import { getSearchIndex } from '@/lib/queries'
 
 /**
  * Barra superior. Lee el nombre del servidor del global, para que cambiarlo
@@ -9,7 +11,10 @@ import { getPayloadClient } from '@/lib/payload'
  */
 export async function Nav() {
   const payload = await getPayloadClient()
-  const info = await payload.findGlobal({ slug: 'server-info', depth: 0 })
+  const [info, searchItems] = await Promise.all([
+    payload.findGlobal({ slug: 'server-info', depth: 0 }),
+    getSearchIndex(),
+  ])
 
   return (
     <header className="sticky top-0 z-50 border-b border-moss bg-obsidian/90 backdrop-blur">
@@ -18,7 +23,9 @@ export async function Nav() {
           {info?.serverName ?? 'Isla Perdida'}
         </Link>
 
-        <nav className="font-hud flex items-center gap-6 text-[11px] tracking-[0.18em] uppercase">
+        <nav className="font-hud flex items-center gap-4 text-[11px] tracking-[0.18em] uppercase sm:gap-6">
+          <SearchDialog items={searchItems} />
+
           <Link className="hover:text-element" href="/wiki">
             Wiki
           </Link>

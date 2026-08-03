@@ -440,11 +440,36 @@ el sitio por HTTPS.
 
 ## Fase 7 — Wiki
 
-- [ ] `/wiki` con las categorías ordenadas por `order`
-- [ ] `/wiki/[categoria]` con paginación (Payload la trae en la respuesta)
-- [ ] `/wiki/[categoria]/[slug]` con el layout de dos columnas (prosa + dossier)
-- [ ] Búsqueda: empieza con `command` de shadcn filtrando en cliente sobre los títulos ya cargados. Solo si crece, agrega `@payloadcms/plugin-search`
-- [ ] Tabla de contenidos derivada de los headings (opcional, útil en guías largas)
+- [x] `/wiki` con las categorías ordenadas por `order`
+- [x] `/wiki/[categoria]` con paginación (Payload la trae en la respuesta)
+- [x] `/wiki/[categoria]/[slug]` con el layout de dos columnas (prosa + dossier)
+- [x] Búsqueda filtrando en cliente sobre los títulos ya cargados
+- [x] Tabla de contenidos derivada de los headings
+
+**Paginación por ruta, no por query string.** Con `?page=2` la página leería
+`searchParams` y Next la volvería dinámica, tirando el ISR que costó montar en la Fase 3.
+La página 1 se queda en `/wiki/[categoria]` y el resto vive en `/wiki/[categoria]/p/[n]`,
+todas estáticas. La 1 **no** se genera bajo `/p/1`: la misma lista en dos URLs es
+contenido duplicado. `/p/99` y `/p/abc` devuelven 404 en vez de un listado vacío con 200,
+que Google indexaría.
+
+**Búsqueda sin dependencias.** Se usó `<dialog>` nativo en vez de `command` de shadcn:
+el navegador ya trae el foco atrapado dentro del diálogo, el cierre con Escape y el
+backdrop. Con `cmdk` + Radix serían dos dependencias más para lo mismo. Filtra ignorando
+acentos, así que «guias» encuentra «Guías». Al cliente solo viajan título, categoría y
+URL — nunca el contenido, que multiplicaría el peso de cada página.
+
+**Anclas de la tabla de contenidos.** El id lo genera `headingId()`, la misma función
+que usa el converter de `heading` en `RichText`. Si se cambia una sin la otra, el índice
+apunta a anclas que no existen. Títulos repetidos comparten id y el enlace lleva al
+primero.
+
+**Verificado con datos de prueba** (13 artículos creados y borrados después): página 1
+con 12 tarjetas y paginador, página 2 con el resto, `/p/99` en 404, y el índice de una
+guía con sus anclas `h2` y `h3` funcionando.
+
+**El menú móvil con `sheet` no hizo falta:** el nav tiene tres elementos (buscar, wiki,
+Discord) y caben en pantalla pequeña. Se evita así una dependencia de Radix.
 
 **Criterio de salida:** encuentras cualquier artículo en dos clics desde el landing.
 

@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation'
 import { Breadcrumb } from '@/components/Breadcrumb'
 import { Dossier } from '@/components/Dossier'
 import { RichText } from '@/components/RichText'
+import { TableOfContents } from '@/components/TableOfContents'
+import { extractHeadings } from '@/lib/headings'
 import { getPayloadClient, onlyPublished } from '@/lib/payload'
 import type { Category, Media } from '@/payload-types'
 
@@ -82,6 +84,8 @@ export default async function PostPage({ params }: { params: Promise<Params> }) 
   // Se sirve el tamaño `card`, no la imagen full: la original puede pesar 1 MB.
   const coverSize = cover && typeof cover !== 'number' ? (cover.sizes?.card ?? cover) : null
 
+  const headings = extractHeadings(post.content)
+
   return (
     <main className="mx-auto max-w-[1120px] px-6 py-20">
       <Breadcrumb
@@ -113,7 +117,11 @@ export default async function PostPage({ params }: { params: Promise<Params> }) 
           <RichText data={post.content} />
         </article>
 
-        <Dossier className="w-full lg:w-72 lg:shrink-0" stats={post.stats} />
+        {/* Columna lateral: índice y stats. Se apila bajo la prosa en móvil. */}
+        <div className="flex w-full flex-col gap-6 lg:w-72 lg:shrink-0">
+          <TableOfContents className="lg:sticky lg:top-24" headings={headings} />
+          <Dossier stats={post.stats} />
+        </div>
       </div>
     </main>
   )

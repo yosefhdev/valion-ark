@@ -4,6 +4,7 @@ import {
   type JSXConvertersFunction,
 } from '@payloadcms/richtext-lexical/react'
 import type { Media } from '@/payload-types'
+import { headingId } from '@/lib/headings'
 import { cn } from '@/lib/utils'
 
 /**
@@ -20,6 +21,17 @@ function isExternal(href: string): boolean {
   return /^https?:\/\//i.test(href)
 }
 
+/**
+ * Texto plano de un nodo, para poder derivar el id del título. Recibe
+ * `unknown` porque los tipos de nodo de Lexical no comparten forma entre sí.
+ */
+function plainText(node: unknown): string {
+  const n = node as { children?: unknown[]; text?: unknown }
+  if (typeof n?.text === 'string') return n.text
+  if (!Array.isArray(n?.children)) return ''
+  return n.children.map(plainText).join('')
+}
+
 const HEADING_CLASS: Record<string, string> = {
   h1: 'font-display text-4xl font-extrabold uppercase mt-12 mb-4',
   h2: 'font-display text-3xl font-extrabold uppercase mt-12 mb-4',
@@ -34,8 +46,14 @@ const converters: JSXConvertersFunction = ({ defaultConverters }) => ({
 
   heading: ({ node, nodesToJSX }) => {
     const Tag = node.tag
+    // El id lo genera la misma función que usa la tabla de contenidos, o los
+    // enlaces del índice apuntarían a anclas inexistentes.
+    const text = plainText(node)
     return (
-      <Tag className={HEADING_CLASS[node.tag] ?? HEADING_CLASS.h2}>
+      <Tag
+        className={HEADING_CLASS[node.tag] ?? HEADING_CLASS.h2}
+        id={text ? headingId(text) : undefined}
+      >
         {nodesToJSX({ nodes: node.children })}
       </Tag>
     )
