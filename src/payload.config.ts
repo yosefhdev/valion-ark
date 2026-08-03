@@ -23,6 +23,11 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    // Payload inyecta `<style>@layer payload-default, payload;</style>` en el
+    // <head> del panel, y en SSR ese nodo sale distinto que en cliente. Es
+    // interno de Payload/Next, no de nuestro código, y la propia config
+    // expone esta bandera para el caso. Solo afecta a las rutas del admin.
+    suppressHydrationWarning: true,
     meta: {
       titleSuffix: '— Isla Perdida',
       description: 'Panel de contenido de la wiki del servidor',

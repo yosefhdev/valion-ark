@@ -28,11 +28,19 @@ roles ni permisos diferenciados; el único límite que importa es autenticado vs
 - [x] Pegar `payload.config.ts`, `collections/`, `access/` y `hooks/` en `src/`
 - [x] Instalar Tailwind v4 (`tailwindcss` + `@tailwindcss/postcss` + `postcss`)
 - [x] Inicializar shadcn (`components.json`, `cn()`, puente de variables, `--radius: 0`)
-- [ ] Levantar Postgres en Railway y referenciar `DATABASE_URL` en el servicio de la app
-- [ ] Crear bucket en R2 + API token, llenar las 4 variables de entorno
-- [ ] Primer deploy y crear el usuario admin en `/admin`
+- [x] Base de datos conectada — Postgres 18 **local** por ahora; Railway se pospone al deploy (Fase 8)
+- [x] Crear bucket en R2 + API token, llenar las 4 variables de entorno
+- [x] Crear el usuario admin en `/admin` — el deploy queda para la Fase 8
 
-**Criterio de salida:** subes una imagen desde el admin y aparece en el bucket de R2.
+**Criterio de salida: CUMPLIDO.** Se subió una imagen desde el admin y aparecieron
+4 objetos en el bucket (original + `thumbnail` 400x300 + `card` 768x432 + `og` 1200x630).
+Payload los sirve de vuelta por `/api/media/file/<archivo>` con 200 y los bytes
+coinciden exactamente con los del bucket.
+
+Como no se activó `disablePayloadAccessControl`, el plugin registra su propio
+`staticHandler`: las imágenes las sirve Payload y **el bucket puede quedarse privado**.
+No hace falta el dominio r2.dev ni un dominio propio hasta la Fase 8, donde conviene
+para que Cloudflare las cachee en vez de que cada petición pase por el servidor.
 
 ### Desviaciones respecto a lo planeado (Fase 0)
 
@@ -55,10 +63,28 @@ Todo verificado el 2026-08-03 contra el registry, no contra la memoria del plan:
   `access.admin` exige devolver `boolean`, así que no acepta el tipo `Access`
   (que puede devolver un `Where`).
 
+- **`admin.suppressHydrationWarning: true`.** Payload inyecta
+  `<style>@layer payload-default, payload;</style>` en el `<head>` del panel y ese nodo
+  sale distinto en SSR que en cliente. Es interno de Payload/Next, no de nuestro código;
+  la propia config expone la bandera para el caso y solo afecta a las rutas del admin.
+  Silencia el aviso, no elimina la diferencia.
+
 **Estado verificado:** `tsc --noEmit` y `eslint` en verde; `/` responde 200 con los
-tokens, la utilidad `.panel` y el puente de shadcn compilados; `/admin` responde 500
-solo por `DATABASE_URL` (placeholder). El gotcha del preflight **todavía no está
-probado** — hace falta que `/admin` cargue de verdad.
+tokens, la utilidad `.panel` y el puente de shadcn compilados; `/admin` responde 200
+contra Postgres local, con el primer usuario creado.
+
+**El gotcha del preflight quedó comprobado:** `/admin` carga un solo CSS (768 KB, los
+estilos propios de Payload — tiene `--theme-elevation`) sin `polygon()`, sin
+`--color-obsidian`, sin `feTurbulence` y sin el reset de Tailwind. La opción A del plan
+funciona.
+
+**Accesos (adelanto de la Fase 2.1):** `GET /api/users` sin sesión devuelve **403**.
+`categories` y `media` devuelven 200, que es lo correcto. Lo de los borradores **sigue
+sin probarse de verdad**: `/api/posts` devuelve una lista vacía porque todavía no hay
+artículos, no porque esté filtrando.
+
+**Pendiente antes de producción:** `WARN: No email adapter provided` — sin adapter, el
+correo de recuperar contraseña se imprime en consola y nadie podría recuperar su cuenta.
 
 ### ⚠️ Gotcha crítico: Tailwind rompe el admin de Payload
 
