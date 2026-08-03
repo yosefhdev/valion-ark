@@ -1,0 +1,134 @@
+@import 'tailwindcss';
+
+/*
+  IMPORTANTE: este archivo se importa SOLO en app/(frontend)/layout.tsx.
+  Si se importa en un layout compartido con (payload), el preflight de
+  Tailwind se filtra al panel de admin y le desarma el layout.
+*/
+
+@theme {
+  --color-obsidian: #0b0e0d;
+  --color-basalt: #141a17;
+  --color-basalt-2: #1b231e;
+  --color-moss: #2c3830;
+  --color-element: #57e0d2;
+  --color-torch: #e2913a;
+  --color-bone: #ddd6c6;
+  --color-bone-dim: #8e8b7f;
+
+  --font-display: 'Big Shoulders Display', system-ui, sans-serif;
+  --font-body: 'Barlow', system-ui, sans-serif;
+  --font-hud: 'JetBrains Mono', ui-monospace, monospace;
+
+  --color-rust: #c0503c;
+
+  --radius: 0rem;
+}
+
+/*
+  Puente hacia shadcn/ui: sus componentes leen estas variables. Al mapearlas
+  a nuestros tokens, cualquier componente que copiemos sale ya con la paleta
+  del sitio y sin esquinas redondeadas — en vez de editarlos uno por uno.
+  El sitio es dark-only, así que no hay bloque .dark.
+*/
+:root {
+  --radius: 0rem;
+
+  --background: var(--color-obsidian);
+  --foreground: var(--color-bone);
+  --card: var(--color-basalt);
+  --card-foreground: var(--color-bone);
+  --popover: var(--color-basalt-2);
+  --popover-foreground: var(--color-bone);
+  --primary: var(--color-torch);
+  --primary-foreground: var(--color-obsidian);
+  --secondary: var(--color-moss);
+  --secondary-foreground: var(--color-bone);
+  --muted: var(--color-basalt-2);
+  --muted-foreground: var(--color-bone-dim);
+  --accent: var(--color-element);
+  --accent-foreground: var(--color-obsidian);
+  --destructive: var(--color-rust);
+  --destructive-foreground: var(--color-bone);
+  --border: var(--color-moss);
+  --input: var(--color-moss);
+  --ring: var(--color-element);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Todo en 0: el diseño usa esquinas recortadas (.panel), no radios. */
+  --radius-sm: 0rem;
+  --radius-md: 0rem;
+  --radius-lg: 0rem;
+  --radius-xl: 0rem;
+}
+
+/* Elemento firma: panel con esquina recortada. Reusar en tarjetas,
+   dossier y la caja de IP. No usar border-radius en ningún lado. */
+@utility panel {
+  background: var(--color-basalt);
+  border: 1px solid var(--color-moss);
+  clip-path: polygon(
+    0 0,
+    calc(100% - 14px) 0,
+    100% 14px,
+    100% 100%,
+    14px 100%,
+    0 calc(100% - 14px)
+  );
+}
+
+body {
+  background: var(--color-obsidian);
+  color: var(--color-bone);
+  font-family: var(--font-body);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Grano sutil: evita que el negro se lea plano/neón */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-element);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

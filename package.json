@@ -1,0 +1,55 @@
+{
+  "name": "valion-ark",
+  "version": "0.1.0",
+  "description": "Wiki del servidor ARK — Next.js + Payload 3",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
+    "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
+    "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
+    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap"
+  },
+  "dependencies": {
+    "@payloadcms/db-postgres": "3.87.0",
+    "@payloadcms/next": "3.87.0",
+    "@payloadcms/richtext-lexical": "3.87.0",
+    "@payloadcms/storage-s3": "3.87.0",
+    "@payloadcms/translations": "3.87.0",
+    "@payloadcms/ui": "3.87.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "graphql": "^16.8.1",
+    "lucide-react": "^1.28.0",
+    "next": "16.2.12",
+    "payload": "3.87.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "sharp": "0.34.2",
+    "tailwind-merge": "^3.6.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "24.12.3",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "cross-env": "10.1.0",
+    "eslint": "^9.16.0",
+    "eslint-config-next": "16.2.12",
+    "postcss": "8.5.6",
+    "prettier": "^3.4.2",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3"
+  },
+  "trustedDependencies": [
+    "sharp",
+    "esbuild",
+    "unrs-resolver"
+  ],
+  "engines": {
+    "node": ">=20.9.0"
+  }
+}
