@@ -16,9 +16,11 @@
   --color-bone: #ddd6c6;
   --color-bone-dim: #8e8b7f;
 
-  --font-display: 'Big Shoulders Display', system-ui, sans-serif;
-  --font-body: 'Barlow', system-ui, sans-serif;
-  --font-hud: 'JetBrains Mono', ui-monospace, monospace;
+  /* Las alimenta next/font desde (frontend)/layout.tsx. El fallback importa:
+     si la fuente no carga, el texto sigue siendo legible. */
+  --font-display: var(--font-display-src), system-ui, sans-serif;
+  --font-body: var(--font-body-src), system-ui, sans-serif;
+  --font-hud: var(--font-hud-src), ui-monospace, monospace;
 
   --color-rust: #c0503c;
 
@@ -120,6 +122,76 @@ body::before {
 :focus-visible {
   outline: 2px solid var(--color-element);
   outline-offset: 3px;
+}
+
+/*
+  Estilos del cuerpo de los artículos. Aquí solo vive lo que NO se sobreescribe
+  con converters en components/RichText.tsx: párrafos, listas, énfasis, código y
+  tablas. Es HTML que genera Payload, así que no puede llevar clases de Tailwind
+  encima; se estiliza por descendencia.
+*/
+.rich-text > * + * {
+  margin-top: 1.25rem;
+}
+
+.rich-text p {
+  line-height: 1.8;
+}
+
+.rich-text strong {
+  font-weight: 600;
+  color: #fff;
+}
+
+.rich-text ul,
+.rich-text ol {
+  padding-left: 1.5rem;
+}
+
+.rich-text ul {
+  list-style: square;
+}
+
+.rich-text ol {
+  list-style: decimal;
+}
+
+.rich-text li + li {
+  margin-top: 0.35rem;
+}
+
+.rich-text li::marker {
+  color: var(--color-element);
+}
+
+.rich-text code {
+  font-family: var(--font-hud);
+  font-size: 0.875em;
+  background: var(--color-basalt-2);
+  border: 1px solid var(--color-moss);
+  padding: 0.1em 0.4em;
+}
+
+.rich-text table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.rich-text th,
+.rich-text td {
+  border: 1px solid var(--color-moss);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.rich-text th {
+  font-family: var(--font-hud);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-bone-dim);
+  background: var(--color-basalt-2);
 }
 
 @media (prefers-reduced-motion: reduce) {

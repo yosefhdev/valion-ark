@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { RichText } from '@payloadcms/richtext-lexical/react'
+import { Breadcrumb } from '@/components/Breadcrumb'
+import { Dossier } from '@/components/Dossier'
+import { RichText } from '@/components/RichText'
 import { getPayloadClient, onlyPublished } from '@/lib/payload'
 import type { Category, Media } from '@/payload-types'
 
@@ -33,7 +34,10 @@ async function findPost(slug: string) {
     collection: 'posts',
     where: { and: [{ slug: { equals: slug } }, onlyPublished] },
     limit: 1,
-    depth: 1,
+    // depth 2: la portada y, sobre todo, las imágenes incrustadas en el rich
+    // text. Con depth 0 los nodos upload llegan como id y el converter los
+    // descarta en silencio.
+    depth: 2,
   })
   return docs[0] ?? null
 }
@@ -76,70 +80,40 @@ export default async function PostPage({ params }: { params: Promise<Params> }) 
 
   const cover = post.coverImage as Media | number | null
   // Se sirve el tamaño `card`, no la imagen full: la original puede pesar 1 MB.
-  const coverSize =
-    cover && typeof cover !== 'number' ? (cover.sizes?.card ?? cover) : null
+  const coverSize = cover && typeof cover !== 'number' ? (cover.sizes?.card ?? cover) : null
 
   return (
-    <main className="mx-auto max-w-[1120px] px-6 py-24">
-      <p className="font-hud text-[11px] uppercase tracking-[0.22em] text-bone-dim">
-        <Link href="/wiki" className="text-element">
-          Wiki
-        </Link>{' '}
-        /{' '}
-        <Link href={`/wiki/${catSlug}`} className="text-element">
-          {catTitle}
-        </Link>{' '}
-        / {post.title}
-      </p>
+    <main className="mx-auto max-w-[1120px] px-6 py-20">
+      <Breadcrumb
+        items={[
+          { href: '/wiki', label: 'Wiki' },
+          { href: `/wiki/${catSlug}`, label: catTitle ?? '' },
+          { label: post.title },
+        ]}
+      />
 
-      <h1 className="mt-4 font-display text-5xl font-extrabold uppercase">{post.title}</h1>
-      {post.excerpt && <p className="mt-3 text-bone-dim">{post.excerpt}</p>}
+      <h1 className="font-display mt-4 max-w-4xl text-5xl font-extrabold uppercase">
+        {post.title}
+      </h1>
+      {post.excerpt && <p className="mt-3 max-w-2xl text-bone-dim">{post.excerpt}</p>}
 
       {coverSize?.url && coverSize.width && coverSize.height && (
         <Image
-          src={coverSize.url}
           alt={typeof cover !== 'number' ? (cover?.alt ?? '') : ''}
-          width={coverSize.width}
-          height={coverSize.height}
           className="mt-10 w-full border border-moss"
+          height={coverSize.height}
           priority
+          src={coverSize.url}
+          width={coverSize.width}
         />
       )}
 
-      <div className="mt-10 flex flex-col gap-12 lg:flex-row">
+      <div className="mt-12 flex flex-col gap-12 lg:flex-row">
         <article className="min-w-0 flex-1">
-          {/* Sin converters todavía: el mapeo de Lexical a las clases del
-              diseño es Fase 5. Aquí solo importa que el contenido salga. */}
           <RichText data={post.content} />
         </article>
 
-        {post.stats && post.stats.length > 0 && (
-          <aside className="panel h-fit w-full p-6 lg:w-72">
-            <p className="font-hud text-[11px] uppercase tracking-[0.22em] text-element">
-              Stats
-            </p>
-            <dl className="mt-4 space-y-3">
-              {post.stats.map((stat) => (
-                <div key={stat.id ?? stat.label}>
-                  <div className="font-hud flex justify-between text-xs">
-                    <dt>{stat.label}</dt>
-                    <dd className="text-bone-dim">
-                      {stat.value} / {stat.max}
-                    </dd>
-                  </div>
-                  <div className="mt-1 h-1 bg-moss">
-                    <div
-                      className="h-full bg-element"
-                      style={{
-                        width: `${Math.min(100, Math.max(0, (stat.value / stat.max) * 100))}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </dl>
-          </aside>
-        )}
+        <Dossier className="w-full lg:w-72 lg:shrink-0" stats={post.stats} />
       </div>
     </main>
   )

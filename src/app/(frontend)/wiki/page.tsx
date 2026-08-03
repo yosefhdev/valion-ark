@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import { CategoryCard } from '@/components/CategoryCard'
 import { getPayloadClient, onlyPublished } from '@/lib/payload'
 
 // ISR: la página se sirve estática y se refresca cada hora. Al publicar un
@@ -9,13 +9,6 @@ export const revalidate = 3600
 export const metadata: Metadata = {
   title: 'Wiki',
   description: 'Mods, dinos, guías y reglas del servidor.',
-}
-
-const TIER_LABEL: Record<string, string> = {
-  basico: 'Básico',
-  intermedio: 'Intermedio',
-  avanzado: 'Avanzado',
-  obligatorio: 'Obligatorio',
 }
 
 export default async function WikiIndexPage() {
@@ -43,30 +36,24 @@ export default async function WikiIndexPage() {
   const countByCategory = new Map(counts)
 
   return (
-    <main className="mx-auto max-w-[1120px] px-6 py-24">
-      <h1 className="font-display text-5xl font-extrabold uppercase">Wiki</h1>
+    <main className="mx-auto max-w-[1120px] px-6 py-20">
+      <p className="font-hud text-[11px] tracking-[0.22em] text-element uppercase">
+        Documentación del servidor
+      </p>
+      <h1 className="font-display mt-3 text-5xl font-extrabold uppercase">Wiki</h1>
 
       {categories.length === 0 ? (
-        <p className="mt-6 text-bone-dim">Todavía no hay categorías.</p>
+        <p className="mt-10 text-bone-dim">Todavía no hay categorías.</p>
       ) : (
-        <ul className="mt-10 space-y-4">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2">
           {categories.map((cat) => (
-            <li key={cat.id}>
-              <Link href={`/wiki/${cat.slug}`} className="panel block p-6">
-                <p className="font-hud text-[11px] uppercase tracking-[0.22em] text-element">
-                  {TIER_LABEL[cat.tier] ?? cat.tier}
-                </p>
-                <h2 className="mt-2 font-display text-2xl font-semibold uppercase">
-                  {cat.title}
-                </h2>
-                {cat.description && <p className="mt-2 text-bone-dim">{cat.description}</p>}
-                <p className="font-hud mt-3 text-xs text-bone-dim">
-                  {countByCategory.get(cat.id) ?? 0} artículos
-                </p>
-              </Link>
-            </li>
+            <CategoryCard
+              category={cat}
+              key={cat.id}
+              postCount={countByCategory.get(cat.id) ?? 0}
+            />
           ))}
-        </ul>
+        </div>
       )}
     </main>
   )

@@ -307,10 +307,18 @@ Tailwind v4 se configura en CSS con `@theme`, ya no en `tailwind.config.js`:
 }
 ```
 
-- [ ] Cargar las 3 fuentes con `next/font/google` (evita el flash de fuente sin estilo)
-- [ ] Utilidad `.panel` — **es el elemento firma**, reutilízalo en tarjetas, dossier y la caja de IP
-- [ ] Overlay de grano como pseudo-elemento fijo en el layout del frontend
-- [ ] Piso de calidad: responsive a móvil, `focus-visible` visible, `prefers-reduced-motion` respetado
+- [x] Cargar las 3 fuentes con `next/font/google` (evita el flash de fuente sin estilo)
+- [x] Utilidad `.panel` — **es el elemento firma**, reutilízalo en tarjetas, dossier y la caja de IP
+- [x] Overlay de grano como pseudo-elemento fijo en el layout del frontend
+- [x] Piso de calidad: `focus-visible` visible, `prefers-reduced-motion` respetado
+
+⚠️ **La familia del mockup cambió de nombre.** Google renombró *Big Shoulders Display*
+a **Big Shoulders**: `Big_Shoulders_Display` ya no existe en `next/font/google`. El import
+correcto es `Big_Shoulders`, y admite `weight: 'variable'`.
+
+Las fuentes se autoalojan (17 `@font-face`, servidas desde `/_next/static/media/*.woff2`),
+así que no hay petición a Google ni parpadeo. Cada una expone su variable CSS y el `@theme`
+las consume con fallback del sistema, para que el texto siga siendo legible si fallan.
 
 **Criterio de salida:** una página de prueba con un panel, un titular y un dato mono se ve igual que el mockup.
 
@@ -371,6 +379,37 @@ pelear con tu escala tipográfica condensada.
 
 **Criterio de salida:** un artículo con títulos, negritas, listas, cita, dos imágenes
 y un link renderiza correctamente y sin CLS.
+
+### Estado de la Fase 5
+
+Hechos: `Panel`, `HudReadout` (con copiar), `CategoryCard`, `RichText`, `Dossier`,
+`PostCard`, `Nav`, `Footer`, `Breadcrumb`, más `button` y `badge` en `components/ui/`.
+
+**shadcn se escribió a mano en vez de instalarse.** Su CLI nuevo aplica presets
+(`base-nova`) que reescriben `globals.css` con su propio tema y pisarían la paleta.
+`button` y `badge` son `cva` + `cn`, sin dependencia de Radix. Los que sí necesitan
+Radix — `sheet` para el menú móvil, `accordion`, `tooltip` — se dejan para la Fase 7,
+cuando de verdad hagan falta.
+
+**Trampa encontrada en `RichText`:** pasarle `className` junto con `disableContainer`
+no sirve de nada — `disableContainer` elimina justo el div que llevaría esa clase, así
+que los estilos descendientes de `.rich-text` (listas, tablas, código) nunca llegaban.
+El contenedor lo pone ahora nuestro componente. No daba ningún error: simplemente los
+estilos no se aplicaban.
+
+**Decisión: converters solo donde hacen falta.** Se sobreescriben `heading`, `quote`,
+`link`, `horizontalrule` y `upload`. Listas, tablas, código y negritas se estilizan con
+CSS descendiente bajo `.rich-text`, porque reimplementar el converter de listas obligaría
+a repetir la lógica de checklists sin ganar control real.
+
+**Links externos:** el converter por defecto solo pone `target="_blank"` si el editor marca
+la casilla. El nuestro lo deduce de la URL, así que cualquier link que salga del sitio
+lleva `rel="noopener noreferrer"` aunque el editor no se acuerde.
+
+**`depth: 2` en la consulta del artículo.** Las imágenes incrustadas en el rich text son
+nodos `upload`: si llegan como id en vez de objeto, el converter **devuelve null en
+silencio** y la imagen no aparece sin ningún error. Es de los fallos más difíciles de
+diagnosticar de este stack.
 
 ---
 
