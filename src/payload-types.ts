@@ -91,8 +91,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'server-info': ServerInfo;
+  };
+  globalsSelect: {
+    'server-info': ServerInfoSelect<false> | ServerInfoSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -177,16 +181,33 @@ export interface Post {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Las secciones de la wiki: mods, dinos, guías, reglas.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories".
  */
 export interface Category {
   id: number;
+  /**
+   * Ej: Mods, Dinos, Guías, Configuración del servidor.
+   */
   title: string;
   /**
-   * Usado en la URL, ej: mods, dinos
+   * Una línea. Se muestra en la tarjeta del índice de la wiki.
    */
-  slug: string;
+  description?: string | null;
+  /**
+   * Controla la franja de color de la tarjeta.
+   */
+  tier: 'basico' | 'intermedio' | 'avanzado' | 'obligatorio';
+  /**
+   * Menor va primero en el índice. Si empatan, se ordenan por nombre.
+   */
+  order: number;
+  /**
+   * Se genera solo desde el nombre. Cámbialo solo si lo necesitas.
+   */
+  slug?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -373,6 +394,9 @@ export interface PostsSelect<T extends boolean = true> {
  */
 export interface CategoriesSelect<T extends boolean = true> {
   title?: T;
+  description?: T;
+  tier?: T;
+  order?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -492,6 +516,84 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * Lo que aparece en la portada: IP, Discord y rates.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "server-info".
+ */
+export interface ServerInfo {
+  id: number;
+  /**
+   * Se usa en el logo y en el título de la pestaña del navegador.
+   */
+  serverName: string;
+  /**
+   * La frase grande de la portada. Corta y directa.
+   */
+  tagline: string;
+  /**
+   * El párrafo que va debajo del titular.
+   */
+  description: string;
+  /**
+   * Lo que el jugador copia para conectarse, ej: 192.0.2.10:7777
+   */
+  ip: string;
+  /**
+   * La invitación completa, empezando por https://
+   */
+  discordUrl: string;
+  /**
+   * Cuántos mapas tiene el cluster.
+   */
+  mapCount: number;
+  /**
+   * Cuántos mods están activos.
+   */
+  modCount: number;
+  /**
+   * La tira de multiplicadores de la portada. El orden aquí es el orden en pantalla.
+   */
+  rates?:
+    | {
+        /**
+         * Ej: Recolección
+         */
+        label: string;
+        /**
+         * Ej: x5
+         */
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "server-info_select".
+ */
+export interface ServerInfoSelect<T extends boolean = true> {
+  serverName?: T;
+  tagline?: T;
+  description?: T;
+  ip?: T;
+  discordUrl?: T;
+  mapCount?: T;
+  modCount?: T;
+  rates?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -12,6 +12,7 @@ import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Categories } from './collections/Categories'
 import { Posts } from './collections/Posts'
+import { ServerInfo } from './globals/ServerInfo'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -49,6 +50,8 @@ export default buildConfig({
   },
 
   collections: [Posts, Categories, Media, Users],
+
+  globals: [ServerInfo],
 
   editor: lexicalEditor(),
 

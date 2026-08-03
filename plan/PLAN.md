@@ -125,11 +125,25 @@ Ponle `admin: { group: 'Configuración' }` para que quede separado del contenido
 en el menú lateral.
 
 ### Ajustes a `Categories`
-- [ ] `description` (text) — se muestra en la tarjeta del índice
-- [ ] `tier` (select: `basico` / `intermedio` / `avanzado` / `obligatorio`) — controla la franja de color
-- [ ] `order` (number) — para ordenar el índice a mano
-- [ ] `slug` con el hook `formatSlug('title')`, igual que en Posts
-- [ ] `admin: { group: 'Contenido' }`
+- [x] `description` (text) — se muestra en la tarjeta del índice
+- [x] `tier` (select: `basico` / `intermedio` / `avanzado` / `obligatorio`) — controla la franja de color
+- [x] `order` (number) — para ordenar el índice a mano
+- [x] `slug` con el hook `formatSlug('title')`, igual que en Posts
+- [x] `admin: { group: 'Contenido' }`
+- [x] Global `ServerInfo` creado en `src/globals/ServerInfo.ts` y registrado en la config
+
+**Notas de la migración de esquema:**
+
+- Las columnas nuevas se aplicaron solas al reiniciar el dev server, sin perder datos.
+  La categoría que ya existía **sí recibió los valores por defecto** (`tier: 'basico'`,
+  `order: 0`): Drizzle los puso como DEFAULT de columna, no solo como default de Payload,
+  así que no quedaron nulos que rompieran el frontend.
+- `slug` en `Categories` dejó de ser `required`: ahora lo genera `formatSlug` desde el
+  nombre. Verificado con acentos y ñ — `Configuración del Servidor` →
+  `configuracion-del-servidor`, `Diseño & Construcción ÑU` → `diseno-construccion-nu`.
+- `defaultSort: 'order'` en la colección, para que el índice salga ordenado sin pedirlo.
+- Los campos `tier`, `order` y `slug` van al sidebar, para que el nombre y la descripción
+  se queden con el ancho completo.
 
 **Criterio de salida:** creas un artículo de dino completo, con imágenes dentro del
 rich text y su bloque de stats, sin tocar código.
