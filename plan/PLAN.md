@@ -78,10 +78,7 @@ estilos propios de Payload — tiene `--theme-elevation`) sin `polygon()`, sin
 `--color-obsidian`, sin `feTurbulence` y sin el reset de Tailwind. La opción A del plan
 funciona.
 
-**Accesos (adelanto de la Fase 2.1):** `GET /api/users` sin sesión devuelve **403**.
-`categories` y `media` devuelven 200, que es lo correcto. Lo de los borradores **sigue
-sin probarse de verdad**: `/api/posts` devuelve una lista vacía porque todavía no hay
-artículos, no porque esté filtrando.
+**Accesos: verificados (ver Fase 2.1).**
 
 **Pendiente antes de producción:** `WARN: No email adapter provided` — sin adapter, el
 correo de recuperar contraseña se imprime en consola y nadie podría recuperar su cuenta.
@@ -152,9 +149,23 @@ Sin roles, el control de acceso es de dos estados y vive en `access/index.ts`:
 | `media` | Sí | Autenticado |
 | `users` | **Nunca** | Autenticado |
 
-- [ ] Verificar que `GET /api/users` sin sesión devuelva error, no la lista de usuarios
-- [ ] Verificar que `GET /api/posts` sin sesión no devuelva borradores
-- [ ] Comprobar ambas cosas por HTTP directo, no solo desde el panel
+- [x] `GET /api/users` sin sesión devuelve **403**, no la lista de usuarios
+- [x] `GET /api/posts` sin sesión no devuelve borradores
+- [x] Comprobado por HTTP directo, no desde el panel
+
+**Cómo se verificó** (2026-08-03, con un artículo publicado y uno en borrador):
+
+| Petición sin sesión | Resultado |
+|---|---|
+| `GET /api/users` | **403** |
+| `GET /api/posts` | 200 — solo el publicado (la Local API con `overrideAccess` ve los 2) |
+| `GET /api/posts/<id-del-borrador>` | **404** |
+| `GET /api/posts/<id-del-borrador>?draft=true` | **404** — no se puede forzar |
+| `GET /api/posts?where[slug][equals]=<slug-del-borrador>` | 200 con lista vacía |
+
+El caso del ID directo importa más de lo que parece: con Postgres los IDs son enteros
+secuenciales (el borrador era el `2`), así que son triviales de adivinar. Repetir esta
+tabla si alguna vez se toca `publishedOrAuthenticated` en `access/index.ts`.
 
 ### 2.2 Protección del panel
 
