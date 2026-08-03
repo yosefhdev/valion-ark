@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 /**
  * Página de humo de la Fase 0: verifica que Tailwind v4, los tokens del
  * @theme y la utilidad .panel funcionan. Se reemplaza en la Fase 6.
@@ -12,6 +14,12 @@ export default function HomePage() {
       <h1 className="mt-4 font-display text-6xl font-extrabold uppercase leading-[0.95]">
         Isla Perdida
       </h1>
+
+      <p className="font-hud mt-6 text-sm uppercase tracking-widest">
+        <Link href="/wiki" className="text-element">
+          Entrar a la wiki →
+        </Link>
+      </p>
 
       <div className="panel mt-10 p-6">
         <p className="font-hud text-[11px] uppercase tracking-[0.22em] text-bone-dim">

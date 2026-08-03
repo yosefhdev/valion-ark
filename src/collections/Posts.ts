@@ -7,6 +7,7 @@ import {
 } from '@payloadcms/richtext-lexical'
 import { authenticated, publishedOrAuthenticated } from '../access'
 import { formatSlug } from '../hooks/formatSlug'
+import { revalidatePost, revalidatePostAfterDelete } from '../hooks/revalidatePost'
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -36,6 +37,11 @@ export const Posts: CollectionConfig = {
     create: authenticated,
     update: authenticated,
     delete: authenticated,
+  },
+  hooks: {
+    // Al publicar, el sitio se actualiza solo en vez de esperar al ISR.
+    afterChange: [revalidatePost],
+    afterDelete: [revalidatePostAfterDelete],
   },
   fields: [
     {

@@ -229,10 +229,41 @@ app/
             └── [slug]/page.tsx           /wiki/mods/structures-plus
 ```
 
-- [ ] `generateStaticParams` + ISR para que las páginas sean estáticas y rápidas
-- [ ] Hook `afterChange` en Posts que dispare `revalidatePath` — al publicar, el sitio se actualiza solo
-- [ ] `not-found.tsx` con copy en la voz del sitio, no un 404 genérico
-- [ ] `generateMetadata` por artículo usando `excerpt` y el tamaño `og` de la imagen
+- [x] `generateStaticParams` + ISR para que las páginas sean estáticas y rápidas
+- [x] Hook `afterChange` en Posts que dispare `revalidatePath` — al publicar, el sitio se actualiza solo
+- [x] `not-found.tsx` con copy en la voz del sitio, no un 404 genérico
+- [x] `generateMetadata` por artículo usando `excerpt` y el tamaño `og` de la imagen
+
+**Lo que confirmó `next build`** (no solo el dev server):
+
+```
+○ /wiki                              1h   ← estática
+● /wiki/[categoria]                  1h   ← SSG
+  └ /wiki/categoria-test
+● /wiki/[categoria]/[slug]           1h   ← SSG
+  └ /wiki/categoria-test/lorem-ipsum
+```
+
+El artículo en borrador **no** se prerenderizó, y `/admin` y `/api` siguen dinámicos.
+
+| Ruta | Estado |
+|---|---|
+| `/wiki`, `/wiki/categoria-test`, `.../lorem-ipsum` | 200 |
+| `.../test1` (borrador) | **404** |
+| `/wiki/no-existe`, `/wiki/categoria-test/no-existe` | **404** |
+
+**Trampa que hay que recordar:** la Local API corre con `overrideAccess: true`, así que
+**no** aplica `publishedOrAuthenticated`. Si una consulta de `posts` para el sitio público
+olvida `_status: 'published'`, los borradores se publican solos. Por eso el filtro vive en
+`src/lib/payload.ts` como `onlyPublished`, para usarlo siempre en vez de reescribirlo.
+
+**`metadataBase`:** sin él, `next build` avisa que las imágenes de Open Graph se resuelven
+contra `localhost:3000` y las previews al compartir salen rotas. Se resuelve con
+`NEXT_PUBLIC_SERVER_URL`, que en Railway debe apuntar al dominio real con `https`.
+
+**Pendiente de verificar en vivo:** el hook de `revalidatePath` está implementado y
+typecheckeado, pero no se ha comprobado publicando desde el panel y viendo la página
+actualizarse sin esperar la hora del ISR.
 
 **Criterio de salida:** navegas de landing → categoría → artículo con datos reales de la DB.
 
