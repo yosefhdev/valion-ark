@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { CategoryCard } from '@/components/CategoryCard'
-import { getPayloadClient, onlyPublished } from '@/lib/payload'
+import { getCategoriesWithCounts } from '@/lib/queries'
 
 // ISR: la página se sirve estática y se refresca cada hora. Al publicar un
 // artículo, el hook de Posts la revalida antes, sin esperar a que expire.
@@ -12,28 +12,7 @@ export const metadata: Metadata = {
 }
 
 export default async function WikiIndexPage() {
-  const payload = await getPayloadClient()
-
-  const { docs: categories } = await payload.find({
-    collection: 'categories',
-    limit: 100,
-    sort: 'order',
-    depth: 0,
-  })
-
-  // Un conteo por categoría, para que la tarjeta diga cuántos artículos hay.
-  const counts = await Promise.all(
-    categories.map(async (cat) => {
-      const { totalDocs } = await payload.find({
-        collection: 'posts',
-        where: { and: [{ category: { equals: cat.id } }, onlyPublished] },
-        limit: 0,
-        depth: 0,
-      })
-      return [cat.id, totalDocs] as const
-    }),
-  )
-  const countByCategory = new Map(counts)
+  const categories = await getCategoriesWithCounts()
 
   return (
     <main className="mx-auto max-w-[1120px] px-6 py-20">
@@ -46,12 +25,8 @@ export default async function WikiIndexPage() {
         <p className="mt-10 text-bone-dim">Todavía no hay categorías.</p>
       ) : (
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
-          {categories.map((cat) => (
-            <CategoryCard
-              category={cat}
-              key={cat.id}
-              postCount={countByCategory.get(cat.id) ?? 0}
-            />
+          {categories.map(({ category, postCount }) => (
+            <CategoryCard category={category} key={category.id} postCount={postCount} />
           ))}
         </div>
       )}

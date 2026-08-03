@@ -415,11 +415,24 @@ diagnosticar de este stack.
 
 ## Fase 6 — Landing
 
-- [ ] Héroe: eyebrow con datos del global, titular, párrafo, caja de IP con copiar, CTA a Discord
-- [ ] Tira de rates desde el array del global
-- [ ] Índice de categorías (las mismas tarjetas que `/wiki`)
-- [ ] Sección de últimos artículos publicados (4 más recientes)
-- [ ] Footer con el disclaimer de sitio no oficial
+- [x] Héroe: eyebrow con datos del global, titular, párrafo, caja de IP con copiar, CTA a Discord
+- [x] Tira de rates desde el array del global
+- [x] Índice de categorías (las mismas tarjetas que `/wiki`)
+- [x] Sección de últimos artículos publicados (4 más recientes)
+- [x] Footer con el disclaimer de sitio no oficial (vive en el layout, sale en todas las páginas)
+
+Las consultas compartidas entre la portada y `/wiki` se extrajeron a `src/lib/queries.ts`.
+El motivo no es ahorrar líneas: es que el filtro de publicados se escriba **una sola vez**.
+Duplicado, tarde o temprano una de las dos copias se queda sin él y los borradores salen
+a producción sin que nadie lo note.
+
+Las secciones de rates y de últimos artículos son condicionales: si el array está vacío,
+no se pinta el bloque en vez de dejar un hueco con un título huérfano.
+
+**Ojo con el `HudReadout`:** `navigator.clipboard` solo existe en contextos seguros
+(HTTPS o localhost). En producción sobre HTTP el botón "Copiar" falla en silencio — está
+envuelto en try/catch, así que la IP sigue visible y seleccionable, pero conviene servir
+el sitio por HTTPS.
 
 **Criterio de salida:** un jugador nuevo copia la IP y entra al Discord en menos de 5 segundos.
 
