@@ -1,5 +1,5 @@
 import type { SearchItem } from '@/components/SearchDialog'
-import type { Category } from '@/payload-types'
+import type { Category, Media } from '@/payload-types'
 import { getPayloadClient, onlyPublished } from './payload'
 
 /**
@@ -106,4 +106,32 @@ export async function getSearchIndex(): Promise<SearchItem[]> {
 export async function getServerInfo() {
   const payload = await getPayloadClient()
   return payload.findGlobal({ slug: 'server-info', depth: 0 })
+}
+
+/**
+ * Logos, favicon, fondo e imagen al compartir.
+ * `depth: 1` para que los uploads lleguen poblados y no como id.
+ */
+export async function getBranding() {
+  const payload = await getPayloadClient()
+  return payload.findGlobal({ slug: 'branding', depth: 1 })
+}
+
+/** URL y medidas de un campo de imagen, o null si no hay nada subido. */
+export function imageFrom(
+  value: unknown,
+  size?: 'card' | 'og' | 'thumbnail',
+): null | { alt: string; height: number; url: string; width: number } {
+  if (!value || typeof value !== 'object') return null
+
+  const media = value as Media
+  const picked = size ? (media.sizes?.[size] ?? media) : media
+  if (!picked?.url || !picked.width || !picked.height) return null
+
+  return {
+    alt: media.alt ?? '',
+    height: picked.height,
+    url: picked.url,
+    width: picked.width,
+  }
 }

@@ -6,7 +6,14 @@ import { Reveal } from '@/components/Reveal'
 import { SectionHeader } from '@/components/SectionHeader'
 import { TelemetryGrid, type Telemetry } from '@/components/TelemetryGrid'
 import { buttonVariants } from '@/components/ui/button'
-import { getCategoriesWithCounts, getLatestPosts, getServerInfo } from '@/lib/queries'
+import Image from 'next/image'
+import {
+  getBranding,
+  getCategoriesWithCounts,
+  getLatestPosts,
+  getServerInfo,
+  imageFrom,
+} from '@/lib/queries'
 import type { Category } from '@/payload-types'
 
 export const revalidate = 3600
@@ -26,13 +33,18 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [info, categories, latest] = await Promise.all([
+  const [info, categories, latest, branding] = await Promise.all([
     getServerInfo(),
     getCategoriesWithCounts(),
     getLatestPosts(4),
+    getBranding(),
   ])
 
   const status = STATUS[info.status] ?? STATUS.online
+  const heroBg = imageFrom(branding.heroBackground)
+  // Sin valor guardado, 70 % de velo: es lo que deja legible una captura
+  // cualquiera del juego, que suelen ser claras.
+  const overlay = Math.min(100, Math.max(0, branding.heroOverlay ?? 70)) / 100
 
   // La tira solo muestra lo que está cargado: un "0 slots" es peor que nada.
   const telemetry: Telemetry[] = [
@@ -50,7 +62,27 @@ export default async function HomePage() {
   return (
     <main>
       {/* ───────────────────────── Héroe ───────────────────────── */}
-      <section className="border-b border-moss">
+      <section className="relative isolate border-b border-moss">
+        {heroBg && (
+          <>
+            <Image
+              alt=""
+              className="absolute inset-0 -z-10 size-full object-cover"
+              fill
+              priority
+              sizes="100vw"
+              src={heroBg.url}
+            />
+            {/* Velo sobre la imagen. Va con opacidad configurable porque una
+                captura clara deja el titular ilegible. */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 -z-10 bg-obsidian"
+              style={{ opacity: overlay }}
+            />
+          </>
+        )}
+
         <div className="mx-auto max-w-[1120px] px-6 pt-16 pb-14">
           <div className="font-hud flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px] tracking-[0.22em] uppercase">
             <span className="flex items-center gap-2">

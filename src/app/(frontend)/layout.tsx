@@ -7,6 +7,7 @@ import React from 'react'
 import './globals.css'
 import { Footer } from '@/components/Footer'
 import { Nav } from '@/components/Nav'
+import { getBranding, getServerInfo, imageFrom } from '@/lib/queries'
 
 // next/font las autoaloja y las precarga: sin petición a Google y sin el
 // parpadeo de texto sin estilo. Cada una expone una variable CSS que el
@@ -35,13 +36,32 @@ const hud = JetBrains_Mono({
   display: 'swap',
 })
 
-export const metadata: Metadata = {
-  // Sin esto, las imágenes de Open Graph se resuelven contra localhost y las
-  // previews al compartir salen rotas en producción. En Railway hay que
-  // apuntar NEXT_PUBLIC_SERVER_URL al dominio real.
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000'),
-  title: 'Isla Perdida — Wiki del servidor',
-  description: 'Mods, dinos, guías y reglas del servidor de ARK.',
+export async function generateMetadata(): Promise<Metadata> {
+  const [branding, info] = await Promise.all([getBranding(), getServerInfo()])
+
+  const favicon = imageFrom(branding.favicon)
+  const og = imageFrom(branding.ogImage, 'og')
+  const serverName = info.serverName ?? 'Isla Perdida'
+
+  return {
+    // Sin esto, las imágenes de Open Graph se resuelven contra localhost y las
+    // previews al compartir salen rotas en producción. En Railway hay que
+    // apuntar NEXT_PUBLIC_SERVER_URL al dominio real.
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000'),
+    title: {
+      default: `${serverName} / Wiki del servidor`,
+      template: `%s / ${serverName}`,
+    },
+    description: info.description ?? 'Mods, dinos, guías y reglas del servidor de ARK.',
+    // El favicon sale del panel, no de un archivo del repo: así se cambia sin
+    // desplegar. Sin imagen subida se omite y el navegador usa el genérico.
+    icons: favicon ? { icon: [{ url: favicon.url }] } : undefined,
+    // Imagen de respaldo al compartir. Los artículos con portada definen la
+    // suya y esta no les afecta.
+    openGraph: og
+      ? { images: [{ height: og.height, url: og.url, width: og.width }] }
+      : undefined,
+  }
 }
 
 export default function FrontendLayout({ children }: { children: React.ReactNode }) {

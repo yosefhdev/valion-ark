@@ -203,7 +203,21 @@ Lo que hace la diferencia entre un panel que la gente usa y uno que abandonan:
 
 ### 2.4 Branding y vista previa
 
-- [ ] Crear `components/admin/Logo.tsx` y `components/admin/Icon.tsx` y referenciarlos en `admin.components.graphics`
+- [x] Crear `components/admin/Logo.tsx` y `components/admin/Icon.tsx` y referenciarlos en `admin.components.graphics`
+
+**La marca es editable, no está en el código.** El global `Branding` guarda logo del
+sitio, favicon, logo e icono del panel, fondo de la portada e imagen al compartir.
+Todo con respaldo: sin imagen subida se usa el texto o la forma en SVG, nunca un hueco.
+
+Tres cosas que condicionan cómo está montado:
+
+- **`Branding` tiene lectura pública** porque la pantalla de login del panel pinta el
+  logo antes de que exista sesión. Si exigiera autenticación, `/admin` se quedaría sin él.
+- **Los componentes del panel caen al texto si la consulta falla.** Un login sin logo es
+  feo; un login que no carga es peor.
+- **El favicon se inyecta por `metadata.icons`**, no como archivo del repo, así que se
+  cambia desde el panel sin desplegar. El velo del fondo es configurable porque una
+  captura clara del juego deja el titular ilegible.
 - [ ] Ruta `/wiki/preview` que lea el draft con `draft: true`
 - [ ] `admin.preview` en `Posts` (ya está el esqueleto en el archivo)
 

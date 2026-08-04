@@ -93,9 +93,11 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'server-info': ServerInfo;
+    branding: Branding;
   };
   globalsSelect: {
     'server-info': ServerInfoSelect<false> | ServerInfoSelect<true>;
+    branding: BrandingSelect<false> | BrandingSelect<true>;
   };
   locale: null;
   widgets: {
@@ -611,6 +613,45 @@ export interface ServerInfo {
   createdAt?: string | null;
 }
 /**
+ * Logos, icono de la pestaña, fondo de la portada e imagen al compartir.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "branding".
+ */
+export interface Branding {
+  id: number;
+  /**
+   * Reemplaza el nombre escrito. Se muestra a 32 px de alto, así que conviene un PNG con fondo transparente y bastante ancho. Si lo dejas vacío se usa el nombre del servidor.
+   */
+  siteLogo?: (number | null) | Media;
+  /**
+   * El iconito del navegador. Usa un PNG cuadrado de 512×512: si no es cuadrado, el navegador lo deforma.
+   */
+  favicon?: (number | null) | Media;
+  /**
+   * Aparece grande sobre el formulario de acceso.
+   */
+  adminLogo?: (number | null) | Media;
+  /**
+   * El pequeño de la esquina, junto al menú. Cuadrado.
+   */
+  adminIcon?: (number | null) | Media;
+  /**
+   * Una captura del servidor funciona bien. Apaisada y de al menos 1920 px de ancho.
+   */
+  heroBackground?: (number | null) | Media;
+  /**
+   * Velo negro sobre la imagen. Cuanto más clara sea la captura, más alto tiene que ir o el titular deja de leerse. Por debajo de 50 revisa que el texto siga siendo legible.
+   */
+  heroOverlay?: number | null;
+  /**
+   * La que sale al pegar el link en Discord o WhatsApp. Se recorta a 1200×630. Los artículos con portada usan la suya; esta es para el resto del sitio.
+   */
+  ogImage?: (number | null) | Media;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "server-info_select".
  */
@@ -652,6 +693,22 @@ export interface ServerInfoSelect<T extends boolean = true> {
         text?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "branding_select".
+ */
+export interface BrandingSelect<T extends boolean = true> {
+  siteLogo?: T;
+  favicon?: T;
+  adminLogo?: T;
+  adminIcon?: T;
+  heroBackground?: T;
+  heroOverlay?: T;
+  ogImage?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
