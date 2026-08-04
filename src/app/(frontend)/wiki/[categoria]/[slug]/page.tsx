@@ -117,10 +117,20 @@ export default async function PostPage({ params }: { params: Promise<Params> }) 
           <RichText data={post.content} />
         </article>
 
-        {/* Columna lateral: índice y stats. Se apila bajo la prosa en móvil. */}
-        <div className="flex w-full flex-col gap-6 lg:w-72 lg:shrink-0">
-          <TableOfContents className="lg:sticky lg:top-24" headings={headings} />
-          <Dossier stats={post.stats} />
+        {/* Columna lateral: índice y stats. Se apila bajo la prosa en móvil.
+
+            El `sticky` va en este envoltorio y no en el índice: si solo el
+            índice queda fijo, el panel de stats sigue su flujo normal y al
+            bajar acaba metiéndose debajo. Fijando el bloque entero, los dos
+            se mueven juntos y mantienen su orden.
+
+            El scroll interno es para artículos con muchos títulos: sin él, un
+            índice más alto que la pantalla deja los últimos fuera de alcance. */}
+        <div className="w-full lg:w-72 lg:shrink-0">
+          <div className="flex flex-col gap-6 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
+            <TableOfContents headings={headings} />
+            <Dossier stats={post.stats} />
+          </div>
         </div>
       </div>
     </main>
