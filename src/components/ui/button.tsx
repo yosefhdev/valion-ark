@@ -7,7 +7,10 @@ import { cn } from '@/lib/utils'
  * usa esquinas rectas o recortadas, nunca radios.
  */
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 font-hud text-xs uppercase tracking-widest transition-colors disabled:pointer-events-none disabled:opacity-50',
+  // `active:scale` da respuesta inmediata al pulsar: sin eso el botón no
+  // acusa recibo hasta que navega. Se transicionan solo color y transform,
+  // nunca `all`.
+  'inline-flex items-center justify-center gap-2 font-hud text-xs uppercase tracking-widest transition-[color,background-color,border-color,transform] duration-150 ease-out active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {

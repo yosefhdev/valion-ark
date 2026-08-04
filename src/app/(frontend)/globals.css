@@ -194,6 +194,28 @@ body::before {
   background: var(--color-basalt-2);
 }
 
+/*
+  Aparición al hacer scroll. El estado oculto vive SOLO dentro de
+  `no-preference`: si se declarara fuera, quien pide menos movimiento vería la
+  página en blanco, porque el bloque de abajo anula las transiciones y nada
+  volvería a opacidad 1. Con esta forma, reduced-motion simplemente no oculta.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    /* Solo opacity y transform: ambas van a GPU y no tocan el layout. */
+    transition:
+      opacity 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal[data-shown] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

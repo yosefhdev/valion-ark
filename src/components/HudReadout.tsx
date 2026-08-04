@@ -47,7 +47,7 @@ export function HudReadout({
 
       {copyable && (
         <button
-          className="font-hud shrink-0 border border-moss px-3 py-2 text-[11px] tracking-widest uppercase transition-colors hover:border-element hover:text-element"
+          className="font-hud shrink-0 border border-moss px-3 py-2 text-[11px] tracking-widest uppercase transition-[color,border-color,transform] duration-150 ease-out hover:border-element hover:text-element active:scale-[0.97]"
           onClick={copy}
           type="button"
         >

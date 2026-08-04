@@ -518,7 +518,7 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
- * Lo que aparece en la portada: IP, Discord y rates.
+ * Todo lo que aparece en la portada.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "server-info".
@@ -546,6 +546,24 @@ export interface ServerInfo {
    */
   discordUrl: string;
   /**
+   * Se numeran solos en el orden de esta lista. Si lo dejas vacío, la sección no aparece.
+   */
+  connectionSteps?:
+    | {
+        title: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * El indicador del héroe.
+   */
+  status: 'online' | 'mantenimiento' | 'offline';
+  /**
+   * Opcional. Ej: v358.11
+   */
+  version?: string | null;
+  /**
    * Cuántos mapas tiene el cluster.
    */
   mapCount: number;
@@ -554,7 +572,11 @@ export interface ServerInfo {
    */
   modCount: number;
   /**
-   * La tira de multiplicadores de la portada. El orden aquí es el orden en pantalla.
+   * Opcional. Jugadores simultáneos.
+   */
+  slots?: number | null;
+  /**
+   * La tira de multiplicadores. El orden aquí es el orden en pantalla.
    */
   rates?:
     | {
@@ -566,6 +588,22 @@ export interface ServerInfo {
          * Ej: x5
          */
         value: string;
+        id?: string | null;
+      }[]
+    | null;
+  features?:
+    | {
+        title: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Las esenciales. Las largas van en un artículo de la wiki.
+   */
+  rules?:
+    | {
+        text: string;
         id?: string | null;
       }[]
     | null;
@@ -582,13 +620,36 @@ export interface ServerInfoSelect<T extends boolean = true> {
   description?: T;
   ip?: T;
   discordUrl?: T;
+  connectionSteps?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  status?: T;
+  version?: T;
   mapCount?: T;
   modCount?: T;
+  slots?: T;
   rates?:
     | T
     | {
         label?: T;
         value?: T;
+        id?: T;
+      };
+  features?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  rules?:
+    | T
+    | {
+        text?: T;
         id?: T;
       };
   updatedAt?: T;

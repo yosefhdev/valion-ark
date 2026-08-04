@@ -51,6 +51,12 @@ export default function FrontendLayout({ children }: { children: React.ReactNode
       className={`${display.variable} ${body.variable} ${hud.variable}`}
     >
       <body className="flex min-h-screen flex-col">
+        {/* Sin JavaScript, el IntersectionObserver nunca marca los bloques
+            como visibles y la página quedaría en blanco. */}
+        <noscript>
+          <style>{`.reveal{opacity:1 !important;transform:none !important}`}</style>
+        </noscript>
+
         <Nav />
         <div className="flex-1">{children}</div>
         <Footer />
