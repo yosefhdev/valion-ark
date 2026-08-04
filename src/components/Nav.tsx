@@ -18,8 +18,18 @@ export async function Nav() {
     getBranding(),
   ])
 
-  const logo = imageFrom(branding.siteLogo)
   const serverName = info?.serverName ?? 'Isla Perdida'
+
+  const logoSource = imageFrom(branding.siteLogo)
+  // El logo se pinta a 32 px de alto. Si se le pasan a next/image las medidas
+  // del archivo original, sirve esa resolución entera: un PNG de 2048 px se
+  // descargaba completo en todas las páginas para verse a 32.
+  const LOGO_HEIGHT = 32
+  const logo = logoSource && {
+    ...logoSource,
+    height: LOGO_HEIGHT,
+    width: Math.max(1, Math.round((logoSource.width / logoSource.height) * LOGO_HEIGHT)),
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-moss bg-obsidian/90 backdrop-blur">

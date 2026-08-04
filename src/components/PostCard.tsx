@@ -22,9 +22,11 @@ export function PostCard({
         <Image
           alt={typeof cover !== 'number' ? (cover?.alt ?? '') : ''}
           className="hidden h-24 w-32 shrink-0 border border-moss object-cover sm:block"
-          height={thumb.height}
+          // Medidas de pantalla (w-32 h-24), no las del archivo. Mismo motivo
+          // que en CategoryCard.
+          height={96}
           src={thumb.url}
-          width={thumb.width}
+          width={128}
         />
       )}
 

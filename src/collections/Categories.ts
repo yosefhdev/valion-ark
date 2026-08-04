@@ -41,6 +41,16 @@ export const Categories: CollectionConfig = {
       },
     },
     {
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Imagen',
+      admin: {
+        description:
+          'La miniatura de la tarjeta en el índice de la wiki. Sin ella la tarjeta sigue funcionando, solo queda como texto.',
+      },
+    },
+    {
       name: 'tier',
       type: 'select',
       required: true,

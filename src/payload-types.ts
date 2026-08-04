@@ -199,6 +199,10 @@ export interface Category {
    */
   description?: string | null;
   /**
+   * La miniatura de la tarjeta en el índice de la wiki. Sin ella la tarjeta sigue funcionando, solo queda como texto.
+   */
+  image?: (number | null) | Media;
+  /**
    * Controla la franja de color de la tarjeta.
    */
   tier: 'basico' | 'intermedio' | 'avanzado' | 'obligatorio';
@@ -397,6 +401,7 @@ export interface PostsSelect<T extends boolean = true> {
 export interface CategoriesSelect<T extends boolean = true> {
   title?: T;
   description?: T;
+  image?: T;
   tier?: T;
   order?: T;
   slug?: T;

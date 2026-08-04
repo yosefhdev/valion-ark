@@ -17,7 +17,7 @@ export async function getCategoriesWithCounts(): Promise<CategoryWithCount[]> {
     collection: 'categories',
     limit: 100,
     sort: 'order',
-    depth: 0,
+    depth: 1, // para que la imagen de la tarjeta llegue poblada, no como id
   })
 
   return Promise.all(
